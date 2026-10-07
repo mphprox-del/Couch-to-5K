@@ -1,0 +1,9 @@
+{
+  "name": "Couch to 5K Coach",
+  "short_name": "5K Coach",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#111827",
+  "icons": []
+}

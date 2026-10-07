@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.json">
+<title>Couch to 5K Coach</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+main{max-width:520px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom))}
+h1{font-size:31px;margin:3px 0}.muted{color:#6b7280}.card{background:white;border-radius:24px;padding:20px;margin:14px 0;box-shadow:0 8px 30px #00000010}
+.hero{text-align:center;padding:25px 20px}.hero h2{margin:5px 0;font-size:25px}.timer{font-size:70px;font-weight:800;letter-spacing:-3px;text-align:center;margin:8px 0}.phase{text-align:center;font-size:23px;font-weight:750}.detail{text-align:center;color:#6b7280;margin:6px 0 18px}
+button,select{width:100%;border:0;border-radius:16px;padding:15px;font-size:17px}button{font-weight:700}.primary{background:#111827;color:white}.secondary{background:#e8ebf0;color:#111827}.row{display:flex;gap:10px}.row button{flex:1}
+.progress{height:9px;background:#e5e7eb;border-radius:10px;overflow:hidden}.bar{height:100%;width:0;background:#111827}
+.item{padding:12px 14px;background:#f7f8fa;border-radius:14px;margin:8px 0}.done{opacity:.55;text-decoration:line-through}
+.badge{font-size:12px;background:#e5e7eb;border-radius:20px;padding:4px 8px;margin-right:5px}.big{font-size:18px;font-weight:750}
+</style></head><body><main>
+<h1>🏃 Couch to 5K Coach</h1><div class="muted">Your 12-week voice-guided running coach</div>
+<div class="card hero"><div class="muted" id="todayLabel">Today's workout</div><h2 id="todayTitle"></h2>
+<button class="primary" onclick="startToday()">▶ Start Today's Workout</button></div>
+<div class="card">
+<label>Week</label><select id="week"></select><div style="height:10px"></div><label>Workout</label><select id="day"></select>
+</div>
+<div class="card"><div class="phase" id="phase">Ready?</div><div class="timer" id="timer">00:00</div><div class="detail" id="detail">Tap Start and let your coach guide you.</div>
+<div class="progress"><div class="bar" id="bar"></div></div><div style="height:16px"></div>
+<div class="row"><button class="primary" onclick="start()">Start</button><button class="secondary" onclick="pause()">Pause</button><button class="secondary" onclick="reset()">Reset</button></div></div>
+<div class="card"><div class="big">12-week plan</div><div id="plan"></div></div>
+</main>
+<script>
+const W=[
+["5 min warm-up + 1 min run / 2 min walk × 8","5 min warm-up + 1 min run / 2 min walk × 8","5 min warm-up + 1 min run / 2 min walk × 8"],
+["5 min warm-up + 1.5 min run / 2 min walk × 7","5 min warm-up + 1.5 min run / 2 min walk × 7","5 min warm-up + 1.5 min run / 2 min walk × 7"],
+["2 min run / 2 min walk × 7","2 min run / 2 min walk × 7","2 min run / 2 min walk × 7"],
+["3 min run / 2 min walk × 6","3 min run / 2 min walk × 6","3 min run / 2 min walk × 6"],
+["5 min run / 2 min walk × 5","8 min run / 3 min walk × 3","10 min run / 3 min walk × 2"],
+["8 min run / 2 min walk × 3","10 min run / 2 min walk × 3","15 min run / 3 min walk × 2"],
+["15 min run + 3 min walk + 10 min run","20 min continuous run","25 min continuous run"],
+["20 min run + 3 min walk + 10 min run","25 min continuous run","28 min continuous run"],
+["25 min continuous run","28 min continuous run","30 min continuous run"],
+["30 min continuous run","25 min easy + 5 × 1 min faster / 2 min easy","32 min continuous run"],
+["30 min continuous run","35 min easy","30 min easy + 5 min strong finish"],
+["25 min very easy","20 min easy + 4 × 30 sec pickups","5K TEST / RACE"]
+];
+const week=document.getElementById("week"),day=document.getElementById("day"),plan=document.getElementById("plan");
+let phases=[],i=0,left=0,total=0,timer=null,running=false;
+for(let n=0;n<12;n++){let o=document.createElement("option");o.value=n;o.textContent="Week "+(n+1);week.append(o)}
+function parse(s){let p=[["Warm-up",300]];
+function add(n,run,walk){for(let x=0;x<n;x++){p.push(["Run",run]);p.push(["Walk",walk])}}
+if(s.includes("1 min run"))add(8,60,120);else if(s.includes("1.5 min"))add(7,90,120);else if(s.includes("2 min run"))add(7,120,120);else if(s.includes("3 min run"))add(6,180,120);
+else if(s.includes("5 min run"))add(5,300,120);else if(s.includes("8 min run"))add(3,480,180);else if(s.includes("10 min run"))add(2,600,180);
+else if(s.includes("15 min run +"))p.push(["Run",900],["Walk",180],["Run",600]);else if(s.includes("20 min continuous"))p.push(["Run",1200]);else if(s.includes("25 min continuous"))p.push(["Run",1500]);else if(s.includes("28 min continuous"))p.push(["Run",1680]);else if(s.includes("30 min continuous"))p.push(["Run",1800]);else if(s.includes("32 min continuous"))p.push(["Run",1920]);else if(s.includes("35 min easy"))p.push(["Easy run",2100]);else if(s.includes("25 min very easy"))p.push(["Very easy run",1500]);else if(s.includes("5K TEST"))p.push(["5K effort",3600]);else if(s.includes("30 min easy"))p.push(["Easy run",1800],["Strong finish",300]);else if(s.includes("20 min easy")){p.push(["Easy run",1200]);for(let x=0;x<4;x++)p.push(["Pickup",30],["Easy",90])}else if(s.includes("25 min easy")){p.push(["Easy",1500]);for(let x=0;x<5;x++)p.push(["Faster",60],["Easy",120])}return p.concat([["Cool-down",300]])}
+function fmt(x){return String(Math.floor(x/60)).padStart(2,"0")+":"+String(x%60).padStart(2,"0")}
+function speak(x){if("speechSynthesis"in window){speechSynthesis.cancel();speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance(x),{rate:.9,pitch:1}))}}
+function load(){phases=parse(W[+week.value][+day.value]);i=0;left=phases[0][1];total=phases.reduce((a,p)=>a+p[1],0);update()}
+function update(){let p=phases[i]||["Complete",0];document.getElementById("phase").textContent=p[0];document.getElementById("timer").textContent=fmt(left);document.getElementById("detail").textContent=`Week ${+week.value+1} • Workout ${+day.value+1}`;let done=total-(phases.slice(i+1).reduce((a,p)=>a+p[1],0)+left);document.getElementById("bar").style.width=Math.max(0,done/total*100)+"%"}
+function start(){if(running)return;running=true;speak(i===0?"Let's begin. Walk easily for five minutes.":"Let's go.");timer=setInterval(tick,1000)}
+function startToday(){week.value=Math.min(11,Math.floor((new Date().getDate()-1)/7));populate();start()}
+function pause(){clearInterval(timer);running=false;speak("Paused.")}
+function reset(){clearInterval(timer);running=false;speechSynthesis?.cancel();load()}
+function tick(){if(left<=0){i++;if(i>=phases.length){clearInterval(timer);running=false;localStorage.setItem("c25k-last",Date.now());document.getElementById("phase").textContent="Workout complete!";document.getElementById("timer").textContent="🎉";document.getElementById("bar").style.width="100%";speak("Workout complete. Great job!");return}left=phases[i][1];speak(phases[i][0]==="Run"?"Run time. Easy and steady.":phases[i][0]==="Walk"?"Walk and recover.":"Keep going.");}left--;if(left===60)speak("One minute remaining.");update()}
+function populate(){day.innerHTML="";W[+week.value].forEach((x,n)=>{let o=document.createElement("option");o.value=n;o.textContent="Workout "+(n+1);day.append(o)});plan.innerHTML=W[+week.value].map((x,n)=>`<div class="item"><span class="badge">Day ${n+1}</span>${x}</div>`).join("");document.getElementById("todayTitle").textContent=`Week ${+week.value+1} • Workout ${+day.value+1}`;load()}
+week.onchange=populate;day.onchange=()=>{document.getElementById("todayTitle").textContent=`Week ${+week.value+1} • Workout ${+day.value+1}`;load()};week.value=0;populate();
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+</script></body></html>
