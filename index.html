@@ -1,62 +1,54 @@
-<!doctype html>
-<html lang="en"><head>
+<!doctype html><html><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.json">
-<title>Couch to 5K Coach</title>
+<meta name="theme-color" content="#1d4ed8"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Couch to 5K"><link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><title>Couch to 5K Coach</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
-main{max-width:520px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom))}
-h1{font-size:31px;margin:3px 0}.muted{color:#6b7280}.card{background:white;border-radius:24px;padding:20px;margin:14px 0;box-shadow:0 8px 30px #00000010}
-.hero{text-align:center;padding:25px 20px}.hero h2{margin:5px 0;font-size:25px}.timer{font-size:70px;font-weight:800;letter-spacing:-3px;text-align:center;margin:8px 0}.phase{text-align:center;font-size:23px;font-weight:750}.detail{text-align:center;color:#6b7280;margin:6px 0 18px}
-button,select{width:100%;border:0;border-radius:16px;padding:15px;font-size:17px}button{font-weight:700}.primary{background:#111827;color:white}.secondary{background:#e8ebf0;color:#111827}.row{display:flex;gap:10px}.row button{flex:1}
-.progress{height:9px;background:#e5e7eb;border-radius:10px;overflow:hidden}.bar{height:100%;width:0;background:#111827}
-.item{padding:12px 14px;background:#f7f8fa;border-radius:14px;margin:8px 0}.done{opacity:.55;text-decoration:line-through}
-.badge{font-size:12px;background:#e5e7eb;border-radius:20px;padding:4px 8px;margin-right:5px}.big{font-size:18px;font-weight:750}
-</style></head><body><main>
-<h1>🏃 Couch to 5K Coach</h1><div class="muted">Your 12-week voice-guided running coach</div>
-<div class="card hero"><div class="muted" id="todayLabel">Today's workout</div><h2 id="todayTitle"></h2>
-<button class="primary" onclick="startToday()">▶ Start Today's Workout</button></div>
-<div class="card">
-<label>Week</label><select id="week"></select><div style="height:10px"></div><label>Workout</label><select id="day"></select>
+body{font-family:-apple-system,BlinkMacSystemFont,Arial;margin:0;background:#f4f7fb;color:#111827}
+.wrap{max-width:760px;margin:auto;padding:16px}.card{background:white;border-radius:22px;padding:18px;margin:12px 0;box-shadow:0 4px 20px #0001}
+.hero{display:flex;gap:14px;align-items:center}.hero img{width:72px;height:72px;border-radius:18px;object-fit:cover}
+h1{font-size:27px;margin:0}h2{font-size:20px}select,button{width:100%;padding:13px;margin:6px 0;border-radius:14px;border:1px solid #ddd;font:inherit}
+.primary{background:#1d4ed8;color:white;border:0;font-weight:700}.secondary{background:#eef2ff;color:#1e3a8a;border:0}
+.timer{text-align:center;font-size:58px;font-weight:800}.phase{text-align:center;font-size:25px;font-weight:700}.next{text-align:center;color:#667085}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{text-align:center;background:#f8fafc;border-radius:14px;padding:12px}.stat b{display:block;font-size:22px;margin-top:3px}
+.progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden}.bar{height:100%;background:#1d4ed8;width:0}.muted{color:#667085}.history-item{padding:11px 0;border-bottom:1px solid #eee}
+</style></head><body><div class="wrap">
+<div class="card hero"><img src="icon-192.png"><div><h1>Couch to 5K Coach</h1><div class="muted">Voice-guided 12-week training</div></div></div>
+<div class="card"><h2>Choose your workout</h2><select id="week"></select><select id="workout"></select>
+<button class="primary" id="start">Start Workout</button><button class="secondary" id="reset">Reset</button></div>
+<div class="card"><div class="phase" id="phase">Ready</div><div class="timer" id="timer">00:00</div>
+<div class="next" id="next">Choose a workout and tap Start</div><div class="progress"><div class="bar" id="bar"></div></div>
+<div class="grid" style="margin-top:12px"><div class="stat">Workout<b id="elapsed">0:00</b></div><div class="stat">Distance<b id="distance">0.00 mi</b></div><div class="stat">Pace<b id="pace">—</b></div><div class="stat">GPS<b id="gps">Off</b></div></div>
+<button id="pause">Pause</button></div>
+<div class="card"><h2>My Progress</h2><div class="grid">
+<div class="stat">Workouts<b id="count">0</b></div><div class="stat">Miles<b id="miles">0.00</b></div>
+<div class="stat">Minutes<b id="minutes">0</b></div><div class="stat">Current week<b id="currentWeek">1</b></div></div>
+<p class="muted">GPS is used only while a workout is running. Distance and pace are estimates.</p></div>
+<div class="card"><h2>Workout History</h2><div id="history" class="muted">No completed workouts yet.</div></div>
 </div>
-<div class="card"><div class="phase" id="phase">Ready?</div><div class="timer" id="timer">00:00</div><div class="detail" id="detail">Tap Start and let your coach guide you.</div>
-<div class="progress"><div class="bar" id="bar"></div></div><div style="height:16px"></div>
-<div class="row"><button class="primary" onclick="start()">Start</button><button class="secondary" onclick="pause()">Pause</button><button class="secondary" onclick="reset()">Reset</button></div></div>
-<div class="card"><div class="big">12-week plan</div><div id="plan"></div></div>
-</main>
 <script>
-const W=[
-["5 min warm-up + 1 min run / 2 min walk × 8","5 min warm-up + 1 min run / 2 min walk × 8","5 min warm-up + 1 min run / 2 min walk × 8"],
-["5 min warm-up + 1.5 min run / 2 min walk × 7","5 min warm-up + 1.5 min run / 2 min walk × 7","5 min warm-up + 1.5 min run / 2 min walk × 7"],
-["2 min run / 2 min walk × 7","2 min run / 2 min walk × 7","2 min run / 2 min walk × 7"],
-["3 min run / 2 min walk × 6","3 min run / 2 min walk × 6","3 min run / 2 min walk × 6"],
-["5 min run / 2 min walk × 5","8 min run / 3 min walk × 3","10 min run / 3 min walk × 2"],
-["8 min run / 2 min walk × 3","10 min run / 2 min walk × 3","15 min run / 3 min walk × 2"],
-["15 min run + 3 min walk + 10 min run","20 min continuous run","25 min continuous run"],
-["20 min run + 3 min walk + 10 min run","25 min continuous run","28 min continuous run"],
-["25 min continuous run","28 min continuous run","30 min continuous run"],
-["30 min continuous run","25 min easy + 5 × 1 min faster / 2 min easy","32 min continuous run"],
-["30 min continuous run","35 min easy","30 min easy + 5 min strong finish"],
-["25 min very easy","20 min easy + 4 × 30 sec pickups","5K TEST / RACE"]
-];
-const week=document.getElementById("week"),day=document.getElementById("day"),plan=document.getElementById("plan");
-let phases=[],i=0,left=0,total=0,timer=null,running=false;
-for(let n=0;n<12;n++){let o=document.createElement("option");o.value=n;o.textContent="Week "+(n+1);week.append(o)}
-function parse(s){let p=[["Warm-up",300]];
-function add(n,run,walk){for(let x=0;x<n;x++){p.push(["Run",run]);p.push(["Walk",walk])}}
-if(s.includes("1 min run"))add(8,60,120);else if(s.includes("1.5 min"))add(7,90,120);else if(s.includes("2 min run"))add(7,120,120);else if(s.includes("3 min run"))add(6,180,120);
-else if(s.includes("5 min run"))add(5,300,120);else if(s.includes("8 min run"))add(3,480,180);else if(s.includes("10 min run"))add(2,600,180);
-else if(s.includes("15 min run +"))p.push(["Run",900],["Walk",180],["Run",600]);else if(s.includes("20 min continuous"))p.push(["Run",1200]);else if(s.includes("25 min continuous"))p.push(["Run",1500]);else if(s.includes("28 min continuous"))p.push(["Run",1680]);else if(s.includes("30 min continuous"))p.push(["Run",1800]);else if(s.includes("32 min continuous"))p.push(["Run",1920]);else if(s.includes("35 min easy"))p.push(["Easy run",2100]);else if(s.includes("25 min very easy"))p.push(["Very easy run",1500]);else if(s.includes("5K TEST"))p.push(["5K effort",3600]);else if(s.includes("30 min easy"))p.push(["Easy run",1800],["Strong finish",300]);else if(s.includes("20 min easy")){p.push(["Easy run",1200]);for(let x=0;x<4;x++)p.push(["Pickup",30],["Easy",90])}else if(s.includes("25 min easy")){p.push(["Easy",1500]);for(let x=0;x<5;x++)p.push(["Faster",60],["Easy",120])}return p.concat([["Cool-down",300]])}
-function fmt(x){return String(Math.floor(x/60)).padStart(2,"0")+":"+String(x%60).padStart(2,"0")}
-function speak(x){if("speechSynthesis"in window){speechSynthesis.cancel();speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance(x),{rate:.9,pitch:1}))}}
-function load(){phases=parse(W[+week.value][+day.value]);i=0;left=phases[0][1];total=phases.reduce((a,p)=>a+p[1],0);update()}
-function update(){let p=phases[i]||["Complete",0];document.getElementById("phase").textContent=p[0];document.getElementById("timer").textContent=fmt(left);document.getElementById("detail").textContent=`Week ${+week.value+1} • Workout ${+day.value+1}`;let done=total-(phases.slice(i+1).reduce((a,p)=>a+p[1],0)+left);document.getElementById("bar").style.width=Math.max(0,done/total*100)+"%"}
-function start(){if(running)return;running=true;speak(i===0?"Let's begin. Walk easily for five minutes.":"Let's go.");timer=setInterval(tick,1000)}
-function startToday(){week.value=Math.min(11,Math.floor((new Date().getDate()-1)/7));populate();start()}
-function pause(){clearInterval(timer);running=false;speak("Paused.")}
-function reset(){clearInterval(timer);running=false;speechSynthesis?.cancel();load()}
-function tick(){if(left<=0){i++;if(i>=phases.length){clearInterval(timer);running=false;localStorage.setItem("c25k-last",Date.now());document.getElementById("phase").textContent="Workout complete!";document.getElementById("timer").textContent="🎉";document.getElementById("bar").style.width="100%";speak("Workout complete. Great job!");return}left=phases[i][1];speak(phases[i][0]==="Run"?"Run time. Easy and steady.":phases[i][0]==="Walk"?"Walk and recover.":"Keep going.");}left--;if(left===60)speak("One minute remaining.");update()}
-function populate(){day.innerHTML="";W[+week.value].forEach((x,n)=>{let o=document.createElement("option");o.value=n;o.textContent="Workout "+(n+1);day.append(o)});plan.innerHTML=W[+week.value].map((x,n)=>`<div class="item"><span class="badge">Day ${n+1}</span>${x}</div>`).join("");document.getElementById("todayTitle").textContent=`Week ${+week.value+1} • Workout ${+day.value+1}`;load()}
-week.onchange=populate;day.onchange=()=>{document.getElementById("todayTitle").textContent=`Week ${+week.value+1} • Workout ${+day.value+1}`;load()};week.value=0;populate();
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+const PLANS=[[["Walk",5],["Run",1],["Walk",1.5],["Run",1],["Walk",1.5],["Run",1],["Walk",1.5],["Run",1],["Walk",5]],[["Walk",5],["Run",1.5],["Walk",2],["Run",1.5],["Walk",2],["Run",1.5],["Walk",2],["Run",1.5],["Walk",5]],[["Walk",5],["Run",1.5],["Walk",1.5],["Run",3],["Walk",3],["Run",1.5],["Walk",1.5],["Run",3],["Walk",5]],[["Walk",5],["Run",3],["Walk",1.5],["Run",5],["Walk",2.5],["Run",3],["Walk",1.5],["Run",5],["Walk",5]],[["Walk",5],["Run",5],["Walk",3],["Run",5],["Walk",3],["Run",5],["Walk",5]],[["Walk",5],["Run",5],["Walk",3],["Run",8],["Walk",3],["Run",5],["Walk",5]],[["Walk",5],["Run",10],["Walk",3],["Run",10],["Walk",5]],[["Walk",5],["Run",10],["Walk",2],["Run",12],["Walk",2],["Run",8],["Walk",5]],[["Walk",5],["Run",12],["Walk",3],["Run",15],["Walk",3],["Run",5],["Walk",5]],[["Walk",5],["Run",15],["Walk",3],["Run",15],["Walk",5]],[["Walk",5],["Run",20],["Walk",5],["Run",20],["Walk",5]],[["Walk",5],["Run",30],["Walk",5]]];
+const W=document.getElementById('week'), WO=document.getElementById('workout');
+for(let i=0;i<12;i++){let o=document.createElement('option');o.value=i;o.textContent='Week '+(i+1);W.appendChild(o)}
+function populate(){WO.innerHTML='';for(let i=0;i<3;i++){let o=document.createElement('option');o.value=i;o.textContent='Workout '+(i+1);WO.appendChild(o)}}populate();
+
+let phases=[],idx=0,remain=0,running=false,paused=false,timer=null,started=0,elapsed=0,watch=null,last=null,meters=0;
+const KEY='c25k-history-v2';
+const $=id=>document.getElementById(id);
+const speak=t=>{if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}};
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function dist(a,b){let R=6371000,r=Math.PI/180,d1=(b.lat-a.lat)*r,d2=(b.lon-a.lon)*r,q=Math.sin(d1/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
+function update(){ $('elapsed').textContent=fmt(elapsed);$('distance').textContent=(meters/1609.344).toFixed(2)+' mi';let mi=meters/1609.344;let pace=mi>0&&elapsed>0?elapsed/60/mi:0;$('pace').textContent=pace?pace.toFixed(1)+' min/mi':'—'}
+function gpsStart(){if(!navigator.geolocation){$('gps').textContent='Unavailable';return}$('gps').textContent='Starting…';watch=navigator.geolocation.watchPosition(p=>{let c={lat:p.coords.latitude,lon:p.coords.longitude};if(last){let d=dist(last,c);if(d<100)meters+=d}last=c;$('gps').textContent='On';update()},()=>{$('gps').textContent='Denied'},{enableHighAccuracy:true,maximumAge:2000,timeout:10000})}
+function gpsStop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;last=null}
+function render(){ $('phase').textContent=running?(phases[idx]||['Ready'])[0]:'Ready';$('timer').textContent=fmt(remain);let total=phases.reduce((a,x)=>a+x[1]*60,0),done=total-(phases.slice(idx).reduce((a,x)=>a+x[1]*60,0)-remain);$('bar').style.width=(total?Math.min(100,done/total*100):0)+'%';$('next').textContent=phases[idx+1]?'Next: '+phases[idx+1][0]:(running?'Finish!':'Choose a workout and tap Start')}
+function advance(){idx++;if(idx>=phases.length){finish();return}remain=phases[idx][1]*60;speak(phases[idx][0]);render()}
+function finish(){running=false;paused=false;clearInterval(timer);gpsStop();let h=JSON.parse(localStorage.getItem(KEY)||'[]');h.unshift({date:new Date().toISOString(),week:+W.value+1,workout:+WO.value+1,duration:Math.round(elapsed),distance:meters/1609.344});localStorage.setItem(KEY,JSON.stringify(h));speak('Workout complete. Great job!');renderHistory();progress();render()}
+function start(){if(running)return;phases=PLANS[+W.value];idx=0;remain=phases[0][1]*60;elapsed=0;meters=0;last=null;running=true;paused=false;started=Date.now();speak('Starting workout. '+phases[0][0]);gpsStart();render();clearInterval(timer);timer=setInterval(()=>{if(!running||paused)return;elapsed=(Date.now()-started)/1000;if(--remain<0)remain=0;if(remain===0)advance();update();render()},1000)}
+function reset(){running=false;paused=false;clearInterval(timer);gpsStop();phases=[];idx=0;remain=0;elapsed=0;meters=0;$('gps').textContent='Off';update();render()}
+$('pause').onclick=()=>{if(!running)return;paused=!paused;$('pause').textContent=paused?'Resume':'Pause';if(!paused)started=Date.now()-elapsed*1000};
+W.onchange=populate;$('start').onclick=start;$('reset').onclick=reset;
+function renderHistory(){let h=JSON.parse(localStorage.getItem(KEY)||'[]');$('history').innerHTML=h.length?h.slice(0,30).map(x=>'<div class="history-item"><b>Week '+x.week+', Workout '+x.workout+'</b><br>'+new Date(x.date).toLocaleDateString()+' · '+fmt(x.duration)+' · '+x.distance.toFixed(2)+' mi</div>').join(''):'No completed workouts yet.'}
+function progress(){let h=JSON.parse(localStorage.getItem(KEY)||'[]');$('count').textContent=h.length;$('miles').textContent=h.reduce((a,x)=>a+x.distance,0).toFixed(2);$('minutes').textContent=Math.round(h.reduce((a,x)=>a+x.duration,0)/60);$('currentWeek').textContent=Math.min(12,Math.max(1,(h.reduce((a,x)=>Math.max(a,x.week),0)||1)))}
+renderHistory();progress();update();render();
 </script></body></html>
